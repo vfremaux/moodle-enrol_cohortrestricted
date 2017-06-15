@@ -50,10 +50,10 @@ $string['configrestrictionsql_desc'] = '
 La requête admet des emplacements remplaçables fonction de l\'utilisateur courant :</p>
 
 <ul>
-   - <li>%ID% : L\'id utilisateur</li>
+     <li>%ID% : L\'id utilisateur</li>
      <li>%USERNAME% : L\'identifiant utilisateur</li>
      <li>%IDNUMER% : Le numéro d\'identification de l\'utilisateur</li>
-     <li>%PROFILE_FIELD_<profilefieldshortname>% : Inject la valeur du champ correspondant de profil. Si le champ
+     <li>%PROFILE_FIELD_&lt;profilefieldshortname&gt;% : Injecte la valeur du champ correspondant de profil. Si le champ
      n\'est pas trouvé dans les champs personnalisés, alors le nom de champ est recherché dans les attributs standard
      de l\'utilisateur. Ainsi, %PROFILE_FIELD_lang% injectera la valeur de langue du profil standard.</li>
 </ul>

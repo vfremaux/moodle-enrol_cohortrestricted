@@ -53,10 +53,10 @@ $string['configrestrictionsql_desc'] = '
 The query admits some dynamic placehodlers to make results depending on current user </p>
 
 <ul>
-   - <li>%ID% : the user id</li>
+     <li>%ID% : the user id</li>
      <li>%USERNAME% : the user name</li>
      <li>%IDNUMER% : the user idnumber</li>
-     <li>%PROFILE_FIELD_<profilefieldshortname>% : injects value of the corresponding user\'s profile field. If the field shortname is not
+     <li>%PROFILE_FIELD_&lt;profilefieldshortname&gt;% : injects value of the corresponding user\'s profile field. If the field shortname is not
      found in custom profile fields, then it will be search for in the standard user record. Thus %PROFILE_FIELD_lang% will actually
      inject the current language code for the current user.</li>
 </ul>
