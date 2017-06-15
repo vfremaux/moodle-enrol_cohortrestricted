@@ -17,7 +17,7 @@
 /**
  * Local stuff for cohort enrolment plugin.
  *
- * @package    enrol_cohortrestrictedrestricted
+ * @package    enrol_cohortrestricted
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/cohort/lib.php');
  * We try to keep everything in sync via listening to events,
  * it may fail sometimes, so we always do a full sync in cron too.
  */
-class enrol_cohortrestrictedrestricted_handler {
+class enrol_cohortrestricted_handler {
     /**
      * Event processor - cohort member added.
      * @param \core\event\cohort_member_added $event
@@ -77,7 +77,7 @@ class enrol_cohortrestrictedrestricted_handler {
             if ($instance->customint2) {
                 if (!groups_is_member($instance->customint2, $event->relateduserid)) {
                     if ($group = $DB->get_record('groups', array('id'=>$instance->customint2, 'courseid'=>$instance->courseid))) {
-                        groups_add_member($group->id, $event->relateduserid, 'enrol_cohortrestrictedrestricted', $instance->id);
+                        groups_add_member($group->id, $event->relateduserid, 'enrol_cohortrestricted', $instance->id);
                     }
                 }
             }
@@ -113,7 +113,7 @@ class enrol_cohortrestrictedrestricted_handler {
                 if ($ue->status != ENROL_USER_SUSPENDED) {
                     $plugin->update_user_enrol($instance, $ue->userid, ENROL_USER_SUSPENDED);
                     $context = context_course::instance($instance->courseid);
-                    role_unassign_all(array('userid'=>$ue->userid, 'contextid'=>$context->id, 'component'=>'enrol_cohortrestrictedrestricted', 'itemid'=>$instance->id));
+                    role_unassign_all(array('userid'=>$ue->userid, 'contextid'=>$context->id, 'component'=>'enrol_cohortrestricted', 'itemid'=>$instance->id));
                 }
             }
         }
@@ -140,7 +140,7 @@ class enrol_cohortrestrictedrestricted_handler {
         foreach ($instances as $instance) {
             if ($unenrolaction == ENROL_EXT_REMOVED_SUSPENDNOROLES) {
                 $context = context_course::instance($instance->courseid);
-                role_unassign_all(array('contextid'=>$context->id, 'component'=>'enrol_cohortrestrictedrestricted', 'itemid'=>$instance->id));
+                role_unassign_all(array('contextid'=>$context->id, 'component'=>'enrol_cohortrestricted', 'itemid'=>$instance->id));
                 $plugin->update_status($instance, ENROL_INSTANCE_DISABLED);
             } else {
                 $plugin->delete_instance($instance);
@@ -158,14 +158,14 @@ class enrol_cohortrestrictedrestricted_handler {
  * @param int $courseid one course, empty mean all
  * @return int 0 means ok, 1 means error, 2 means plugin disabled
  */
-function enrol_cohortrestrictedrestricted_sync(progress_trace $trace, $courseid = NULL) {
+function enrol_cohortrestricted_sync(progress_trace $trace, $courseid = NULL) {
     global $CFG, $DB;
     require_once("$CFG->dirroot/group/lib.php");
 
     // Purge all roles if cohort sync disabled, those can be recreated later here by cron or CLI.
     if (!enrol_is_enabled('cohortrestricted')) {
         $trace->output('Cohort sync plugin is disabled, unassigning all plugin roles and stopping.');
-        role_unassign_all(array('component'=>'enrol_cohortrestrictedrestricted'));
+        role_unassign_all(array('component'=>'enrol_cohortrestricted'));
         return 2;
     }
 
@@ -233,7 +233,7 @@ function enrol_cohortrestrictedrestricted_sync(progress_trace $trace, $courseid 
             if ($ue->status != ENROL_USER_SUSPENDED) {
                 $plugin->update_user_enrol($instance, $ue->userid, ENROL_USER_SUSPENDED);
                 $context = context_course::instance($instance->courseid);
-                role_unassign_all(array('userid'=>$ue->userid, 'contextid'=>$context->id, 'component'=>'enrol_cohortrestrictedrestricted', 'itemid'=>$instance->id));
+                role_unassign_all(array('userid'=>$ue->userid, 'contextid'=>$context->id, 'component'=>'enrol_cohortrestricted', 'itemid'=>$instance->id));
                 $trace->output("suspending and unsassigning all roles: $ue->userid ==> $instance->courseid", 1);
             }
         }
@@ -250,7 +250,7 @@ function enrol_cohortrestrictedrestricted_sync(progress_trace $trace, $courseid 
               JOIN {role} r ON (r.id = e.roleid)
               JOIN {context} c ON (c.instanceid = e.courseid AND c.contextlevel = :coursecontext)
               JOIN {user} u ON (u.id = ue.userid AND u.deleted = 0)
-         LEFT JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.userid = ue.userid AND ra.itemid = e.id AND ra.component = 'enrol_cohortrestrictedrestricted' AND e.roleid = ra.roleid)
+         LEFT JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.userid = ue.userid AND ra.itemid = e.id AND ra.component = 'enrol_cohortrestricted' AND e.roleid = ra.roleid)
              WHERE ue.status = :useractive AND ra.id IS NULL";
     $params = array();
     $params['statusenabled'] = ENROL_INSTANCE_ENABLED;
@@ -260,7 +260,7 @@ function enrol_cohortrestrictedrestricted_sync(progress_trace $trace, $courseid 
 
     $rs = $DB->get_recordset_sql($sql, $params);
     foreach($rs as $ra) {
-        role_assign($ra->roleid, $ra->userid, $ra->contextid, 'enrol_cohortrestrictedrestricted', $ra->itemid);
+        role_assign($ra->roleid, $ra->userid, $ra->contextid, 'enrol_cohortrestricted', $ra->itemid);
         $trace->output("assigning role: $ra->userid ==> $ra->courseid as ".$allroles[$ra->roleid]->shortname, 1);
     }
     $rs->close();
@@ -273,7 +273,7 @@ function enrol_cohortrestrictedrestricted_sync(progress_trace $trace, $courseid 
               JOIN {context} c ON (c.id = ra.contextid AND c.contextlevel = :coursecontext)
               JOIN {enrol} e ON (e.id = ra.itemid AND e.enrol = 'cohortrestricted' $onecourse)
          LEFT JOIN {user_enrolments} ue ON (ue.enrolid = e.id AND ue.userid = ra.userid AND ue.status = :useractive)
-             WHERE ra.component = 'enrol_cohortrestrictedrestricted' AND (ue.id IS NULL OR e.status <> :statusenabled)";
+             WHERE ra.component = 'enrol_cohortrestricted' AND (ue.id IS NULL OR e.status <> :statusenabled)";
     $params = array();
     $params['statusenabled'] = ENROL_INSTANCE_ENABLED;
     $params['useractive'] = ENROL_USER_ACTIVE;
@@ -282,7 +282,7 @@ function enrol_cohortrestrictedrestricted_sync(progress_trace $trace, $courseid 
 
     $rs = $DB->get_recordset_sql($sql, $params);
     foreach($rs as $ra) {
-        role_unassign($ra->roleid, $ra->userid, $ra->contextid, 'enrol_cohortrestrictedrestricted', $ra->itemid);
+        role_unassign($ra->roleid, $ra->userid, $ra->contextid, 'enrol_cohortrestricted', $ra->itemid);
         $trace->output("unassigning role: $ra->userid ==> $ra->courseid as ".$allroles[$ra->roleid]->shortname, 1);
     }
     $rs->close();
