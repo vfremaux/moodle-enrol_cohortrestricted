@@ -58,7 +58,7 @@ if ($ADMIN->fulltree) {
     $label = get_string('configrestrictionsql', 'enrol_cohortrestricted');
     $desc = get_string('configrestrictionsql_desc', 'enrol_cohortrestricted');
     $default = '';
-    $settings->add(new admin_setting_configtext($key, $label, $desc, $default));
+    $settings->add(new admin_setting_configtextarea($key, $label, $desc, $default));
 
     $key = 'enrol_cohortrestricted/restrictioncohortfield';
     $label = get_string('configrestrictioncohortfield', 'enrol_cohortrestricted');
@@ -72,7 +72,7 @@ if ($ADMIN->fulltree) {
 
     $key = 'enrol_cohortrestricted/restrictionfieldpattern';
     $label = get_string('configrestrictionpattern', 'enrol_cohortrestricted');
-    $desc = get_string('configrestriction^pattern_desc', 'enrol_cohortrestricted');
+    $desc = get_string('configrestrictionpattern_desc', 'enrol_cohortrestricted');
     $default = '';
     $settings->add(new admin_setting_configtext($key, $label, $desc, $default));
 }
