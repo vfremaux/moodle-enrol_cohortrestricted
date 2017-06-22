@@ -33,6 +33,7 @@ $string['instanceexists'] = 'La cohorte est déjà synchronisée pour ce rôle';
 $string['pluginname'] = 'Synchronisation des cohortes (filtrées)';
 $string['pluginname_desc'] = 'Ce plugin synchronise les membres d\'une cohorte comme participants du cours. Les cohortes éligibles sont filtrées.';
 $string['status'] = 'Actif';
+$string['cohortfilter'] = 'Filtrer sur le nom';
 $string['creategroup'] = 'Creer un nouveau groupe';
 
 $string['norestriction'] = 'Pas de restriction';

@@ -24,10 +24,15 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot.'/enrol/cohortrestricted/locallib.php');
+
 /**
  * COHORTRESTRICTED_CREATEGROUP constant for automatically creating a group for a cohort.
  */
 define('COHORTRESTRICTED_CREATE_GROUP', -1);
+define('NO_RESTRICTION', 0);
+define('RESTRICTION_SQL', 1);
+define('RESTRICTION_FIELD', 2);
 
 /**
  * Cohort enrolment plugin implementation.
@@ -370,31 +375,34 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
         include_once($CFG->dirroot . '/cohort/lib.php');
 
         $config = get_config('enrol_cohortrestricted');
+        $context = context_system::instance();
 
-        if ($config->restrictionmode == RESTRICTION_SQL && !empty($config->restrictionsql)) {
-            $sql = $config->restrictionsql;
-            $sql = $this->process_data($sql);
+        if (!has_capability('moodle/site:config', $context)) {
+            if ($config->restrictionmode == RESTRICTION_SQL && !empty($config->restrictionsql)) {
+                $sql = $config->restrictionsql;
+                $sql = $this->process_data($sql);
 
-            if ($cohorts = $DB->get_records_menu($sql)) {
-                return $cohorts;
+                if ($cohorts = $DB->get_records_sql_menu($sql)) {
+                    return $cohorts;
+                }
+
+                return array();
+            } else if ($config->restrictionmode == RESTRICTION_FIELD) {
+                // Not yet implemented.
+                $pattern = $config->restrictionpattern;
+                $params = array();
+                $params[] = $this->process_data($pattern);
+
+                $select = "
+                        ".$config->restrictioncohortfield." LIKE ?
+                ";
+
+                if ($cohorts = $DB->get_records_menu_select('cohort', $select, $params)) {
+                    return $cohorts;
+                }
+
+                return array();
             }
-
-            return array();
-        } else if ($config->restrictionmode == RESTRICTION_FIELD) {
-            // Not yet implemented.
-            $pattern = $config->restrictionpattern;
-            $params = array();
-            $params[] = $this->process_data($pattern);
-
-            $select = "
-                    ".$config->restrictioncohortfield." LIKE ?
-            ";
-
-            if ($cohorts = $DB->get_records_menu_select('cohort', $select, $params)) {
-                return $cohorts;
-            }
-
-            return array();
         }
 
         $cohorts = array();
@@ -417,9 +425,9 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
     }
 
     protected function process_data($input) {
-        global $DB;
+        global $DB, $USER;
 
-        $input = str_replace('%ID%', $USER->id, $sql);
+        $input = str_replace('%ID%', $USER->id, $input);
         $input = str_replace('%IDNUMBER%', $USER->idnumber, $input);
         $input = str_replace('%USERNAME%', $USER->username, $input);
 
@@ -516,16 +524,20 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
         $mform->addElement('select', 'status', get_string('status', 'enrol_cohortrestricted'), $options);
 
         $options = $this->get_cohort_options($instance, $coursecontext);
+        /*
         $group = array();
         $group[] = $mform->createElement('text', 'cohortfilter', get_string('cohortfilter', 'enrol_cohortrestricted'));
         $group[] = $mform->createElement('select', 'customint1', '', $options);
+        $mform->addGroup($group, 'customint1group', get_string('cohort', 'cohort'), array(), false, false);
+        */
+
+        $mform->addElement('select', 'customint1', get_string('cohort', 'cohort'), $options);
         if ($instance->id) {
             $mform->setConstant('customint1', $instance->customint1);
             $mform->hardFreeze('customint1', $instance->customint1);
         } else {
             $mform->addRule('customint1', get_string('required'), 'required', null, 'client');
         }
-        $mform->addGroup($group, 'customint1group', get_string('cohort', 'cohort'), false, array(), false);
 
         $roles = $this->get_role_options($instance, $coursecontext);
         $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_cohortrestricted'), $roles);
