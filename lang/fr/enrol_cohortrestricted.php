@@ -33,6 +33,7 @@ $string['instanceexists'] = 'La cohorte est déjà synchronisée pour ce rôle';
 $string['pluginname'] = 'Synchronisation des cohortes (filtrées)';
 $string['pluginname_desc'] = 'Ce plugin synchronise les membres d\'une cohorte comme participants du cours. Les cohortes éligibles sont filtrées.';
 $string['status'] = 'Actif';
+$string['cohortfilter'] = 'Filtrer sur le nom';
 $string['creategroup'] = 'Creer un nouveau groupe';
 
 $string['norestriction'] = 'Pas de restriction';
@@ -46,17 +47,19 @@ $string['configrestrictionpattern'] = 'Motif à appliquer sur le champ de cohort
 $string['configrestrictionmode_desc'] = 'The way the restriction is calculated';
 
 $string['configrestrictionsql_desc'] = '
-Une requpete SQL donnant la liste de cohortes éligibles  pour l\'utilisateur courant.
-La requête admet des emplacements remplaçables fonction de l\'utilisateur courant :
+<p>Une requpete SQL donnant la liste de cohortes éligibles  pour l\'utilisateur courant.
+La requête admet des emplacements remplaçables fonction de l\'utilisateur courant :</p>
 
-   - %ID% : L\'id utilisateur
-     %USERNAME% : L\'identifiant utilisateur
-     %IDNUMER% : Le numéro d\'identification de l\'utilisateur
-     %PROFILE_FIELD_<profilefieldshortname>% : Inject la valeur du champ correspondant de profil. Si le champ
+<ul>
+     <li>%ID% : L\'id utilisateur</li>
+     <li>%USERNAME% : L\'identifiant utilisateur</li>
+     <li>%IDNUMER% : Le numéro d\'identification de l\'utilisateur</li>
+     <li>%PROFILE_FIELD_&lt;profilefieldshortname&gt;% : Injecte la valeur du champ correspondant de profil. Si le champ
      n\'est pas trouvé dans les champs personnalisés, alors le nom de champ est recherché dans les attributs standard
-     de l\'utilisateur. Ainsi, %PROFILE_FIELD_lang% injectera la valeur de langue du profil standard.
+     de l\'utilisateur. Ainsi, %PROFILE_FIELD_lang% injectera la valeur de langue du profil standard.</li>
+</ul>
 
-La requête de cohorte DOIT selectionner 2 champs \'id\' et \'name\' dans la table \'cohort\' pour une invocation de get_records_menu().
+<p>La requête de cohorte DOIT selectionner 2 champs \'id\' et \'name\' dans la table \'cohort\' pour une invocation de get_records_menu().</p>
 ';
 $string['configrestrictioncohortfield_desc'] = 'A cohort record field on which a match / nomatch pattern can be applied.';
 
