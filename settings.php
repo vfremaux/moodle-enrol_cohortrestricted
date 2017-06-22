@@ -21,8 +21,9 @@
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot.'/enrol/cohortrestricted/lib.php');
 
 if ($ADMIN->fulltree) {
 
@@ -48,9 +49,9 @@ if ($ADMIN->fulltree) {
     $desc = get_string('configrestrictionmode_desc', 'enrol_cohortrestricted');
     $default = 0;
     $options = array(
-        0 => get_string('norestriction', 'enrol_cohortrestricted'),
-        1 => get_string('restrictionbysql', 'enrol_cohortrestricted'),
-        2 => get_string('restrictionbyfield', 'enrol_cohortrestricted'),
+        NO_RESTRICTION => get_string('norestriction', 'enrol_cohortrestricted'),
+        RESTRICTION_SQL => get_string('restrictionbysql', 'enrol_cohortrestricted'),
+        RESTRICTION_FIELD => get_string('restrictionbyfield', 'enrol_cohortrestricted'),
     );
     $settings->add(new admin_setting_configselect($key, $label, $desc, $default, $options));
 

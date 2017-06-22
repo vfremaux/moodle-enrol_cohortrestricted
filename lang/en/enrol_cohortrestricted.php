@@ -36,6 +36,7 @@ $string['pluginname'] = 'Filtered Cohort sync';
 $string['pluginname_desc'] = 'Cohort enrolment plugin synchronises cohort members with course participants.';
 $string['status'] = 'Active';
 $string['creategroup'] = 'Create new group';
+$string['cohortfilter'] = 'Filter on name';
 $string['configrestructionsql'] = 'Restriction query';
 
 $string['norestriction'] = 'No restriction';
