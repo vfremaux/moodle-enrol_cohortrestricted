@@ -375,9 +375,9 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
         include_once($CFG->dirroot . '/cohort/lib.php');
 
         $config = get_config('enrol_cohortrestricted');
-        $context = context_system::instance();
+        $systemcontext = context_system::instance();
 
-        if (!has_capability('moodle/site:config', $context)) {
+        if (!has_capability('moodle/site:config', $systemcontext)) {
             if ($config->restrictionmode == RESTRICTION_SQL && !empty($config->restrictionsql)) {
                 $sql = $config->restrictionsql;
                 $sql = $this->process_data($sql);
