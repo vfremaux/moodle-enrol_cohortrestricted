@@ -32,4 +32,4 @@ $plugin->maturity = MATURITY_BETA;
 $plugin->cron      = 60 * 60;             // run cron every hour by default, it is not out-of-sync often
 
 // Non moodle attributes.
-$plugin->codeincrement = '3.1.0000';
+$plugin->codeincrement = '3.1.0001';
