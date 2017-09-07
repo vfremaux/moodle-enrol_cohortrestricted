@@ -376,8 +376,9 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
 
         $config = get_config('enrol_cohortrestricted');
         $systemcontext = context_system::instance();
+        $forcefiltering = optional_param('force', false, PARAM_BOOL);
 
-        if (!has_capability('moodle/site:config', $systemcontext)) {
+        if ((!has_capability('moodle/site:config', $systemcontext) || $forcefiltering) && ($config->restrictionmode != NO_RESTRICTION)) {
             if ($config->restrictionmode == RESTRICTION_SQL && !empty($config->restrictionsql)) {
                 $sql = $config->restrictionsql;
                 $sql = $this->process_data($sql);
