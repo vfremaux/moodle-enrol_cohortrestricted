@@ -425,6 +425,48 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
         return $cohorts;
     }
 
+    /**
+     * Return an array of valid options for the cohorts.
+     *
+     * @param stdClass $instance
+     * @param context $context
+     * @return array
+     */
+    public static function static_get_cohort_options($context) {
+        global $DB, $CFG, $USER;
+
+        include_once($CFG->dirroot . '/cohort/lib.php');
+
+        $config = get_config('enrol_cohortrestricted');
+
+        if ($config->restrictionmode == RESTRICTION_SQL && !empty($config->restrictionsql)) {
+            $sql = $config->restrictionsql;
+            $sql = $this->process_data($sql);
+
+            if ($cohorts = $DB->get_records_sql_menu($sql)) {
+                return $cohorts;
+            }
+
+            return array();
+        } else if ($config->restrictionmode == RESTRICTION_FIELD) {
+            // Not yet implemented.
+            $pattern = $config->restrictionpattern;
+            $params = array();
+            $params[] = $this->process_data($pattern);
+
+            $select = "
+                    ".$config->restrictioncohortfield." LIKE ?
+            ";
+
+            if ($cohorts = $DB->get_records_menu_select('cohort', $select, $params)) {
+                return $cohorts;
+            }
+
+        }
+
+        return array();
+    }
+
     protected function process_data($input) {
         global $DB, $USER;
 
