@@ -558,7 +558,9 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
      * @return bool
      */
     public function edit_instance_form($instance, MoodleQuickForm $mform, $coursecontext) {
-        global $DB;
+        global $DB, $PAGE;
+
+        $PAGE->requires->js_call_amd('enrol_cohortrestricted/cohortchoicefilter', 'init');
 
         $mform->addElement('text', 'name', get_string('custominstancename', 'enrol'));
         $mform->setType('name', PARAM_TEXT);
@@ -567,19 +569,26 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
         $mform->addElement('select', 'status', get_string('status', 'enrol_cohortrestricted'), $options);
 
         $options = $this->get_cohort_options($instance, $coursecontext);
-        /*
-        $group = array();
-        $group[] = $mform->createElement('text', 'cohortfilter', get_string('cohortfilter', 'enrol_cohortrestricted'));
-        $group[] = $mform->createElement('select', 'customint1', '', $options);
-        $mform->addGroup($group, 'customint1group', get_string('cohort', 'cohort'), array(), false, false);
-        */
 
-        $mform->addElement('select', 'customint1', get_string('cohort', 'cohort'), $options);
-        if ($instance->id) {
-            $mform->setConstant('customint1', $instance->customint1);
-            $mform->hardFreeze('customint1', $instance->customint1);
+        if (count($options) < 20) {
+            $group = array();
+            $group[] = &$mform->createElement('select', 'customint1', '', $options);
+            $group[] = &$mform->createElement('text', 'cohortfilter', '', array('size' => 10, 'class' => 'restrictedcohort-filter'));
+            $mform->addGroup($group, 'customint1group', get_string('cohort', 'cohort'), array("&nbsp;&nbsp;&nbsp;".get_string('filter', 'enrol_cohortrestricted').':'), false);
+            $mform->setType('cohortfilter', PARAM_TEXT);
+            $rule = array(get_string('required'), 'required', null, 'client'); // A rule.
+            $rules = array($rule); // Rules for elementindex0 (the select).
+            $mform->addGroupRule('customint1group', array($rules));
+            $mform->addHelpButton('customint1group', 'filter', 'enrol_cohortrestricted');
         } else {
-            $mform->addRule('customint1', get_string('required'), 'required', null, 'client');
+            $mform->addElement('select', 'customint1', get_string('cohort', 'cohort'), $options);
+
+            if ($instance->id) {
+                $mform->setConstant('customint1', $instance->customint1);
+                $mform->hardFreeze('customint1', $instance->customint1);
+            } else {
+                $mform->addRule('customint1', get_string('required'), 'required', null, 'client');
+            }
         }
 
         $roles = $this->get_role_options($instance, $coursecontext);
