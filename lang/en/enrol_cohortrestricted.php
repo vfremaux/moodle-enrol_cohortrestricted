@@ -34,11 +34,11 @@ $string['defaultgroupnametext'] = '{$a->name} cohort {$a->increment}';
 $string['instanceexists'] = 'Cohort is already synchronised with selected role';
 $string['pluginname'] = 'Filtered Cohort sync';
 $string['pluginname_desc'] = 'Cohort enrolment plugin synchronises cohort members with course participants.';
+$string['filter'] = 'Filter';
 $string['status'] = 'Active';
 $string['creategroup'] = 'Create new group';
 $string['cohortfilter'] = 'Filter on name';
 $string['configrestructionsql'] = 'Restriction query';
-
 $string['norestriction'] = 'No restriction';
 $string['restrictionbysql'] = 'Restriction by sql';
 $string['restrictionbyfield'] = 'Restriction by field';
@@ -67,3 +67,5 @@ The query admits some dynamic placehodlers to make results depending on current 
 $string['configrestrictioncohortfield_desc'] = 'A cohort record field on which a match / nomatch pattern can be applied.';
 
 $string['configrestrictionpattern_desc'] = 'the pattern that extracts match (not empty result) / nomatch (empty result)';
+
+$string['filter_help'] = 'Enter a substring that should be contained by option labels to reduce the list';

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>__customscripts</location>
+    <name>Moodle Custom Scripting</name>
+    <license>GPL</license>
+    <version></version>
+    <licenseversion>3.0</licenseversion>
+  </library>
+  <library>
+    <location>__reference</location>
+    <name>Moodle Core reference files</name>
+    <license>GPL</license>
+    <version></version>
+    <licenseversion>3.0</licenseversion>
+  </library>
+</libraries>
