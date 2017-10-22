@@ -33,6 +33,7 @@ $string['instanceexists'] = 'La cohorte est déjà synchronisée pour ce rôle';
 $string['pluginname'] = 'Synchronisation des cohortes (filtrées)';
 $string['pluginname_desc'] = 'Ce plugin synchronise les membres d\'une cohorte comme participants du cours. Les cohortes éligibles sont filtrées.';
 $string['status'] = 'Actif';
+$string['filter'] = 'Filtre&nbsp;';
 $string['cohortfilter'] = 'Filtrer sur le nom';
 $string['creategroup'] = 'Creer un nouveau groupe';
 
@@ -64,3 +65,5 @@ La requête admet des emplacements remplaçables fonction de l\'utilisateur cour
 $string['configrestrictioncohortfield_desc'] = 'A cohort record field on which a match / nomatch pattern can be applied.';
 
 $string['configrestrictionpattern_desc'] = 'the pattern that extracts match (not empty result) / nomatch (empty result)';
+
+$string['filter_help'] = 'Réduisez la liste en tapant une chaine que doivent contenir les options.';
