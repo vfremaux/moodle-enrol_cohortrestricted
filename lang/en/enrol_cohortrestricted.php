@@ -34,10 +34,11 @@ $string['defaultgroupnametext'] = '{$a->name} cohort {$a->increment}';
 $string['instanceexists'] = 'Cohort is already synchronised with selected role';
 $string['pluginname'] = 'Filtered Cohort sync';
 $string['pluginname_desc'] = 'Cohort enrolment plugin synchronises cohort members with course participants.';
+$string['filter'] = 'Filter';
 $string['status'] = 'Active';
 $string['creategroup'] = 'Create new group';
+$string['cohortfilter'] = 'Filter on name';
 $string['configrestructionsql'] = 'Restriction query';
-
 $string['norestriction'] = 'No restriction';
 $string['restrictionbysql'] = 'Restriction by sql';
 $string['restrictionbyfield'] = 'Restriction by field';
@@ -49,18 +50,22 @@ $string['configrestrictionpattern'] = 'Pattern to apply on cohort field';
 $string['configrestrictionmode_desc'] = 'The way the restriction is calculated';
 
 $string['configrestrictionsql_desc'] = '
-A SQL query that gives for the current user the cohort list he can assign to the enrol method.
-The query admits some dynamic placehodlers to make results depending on current user :
+<p>A SQL query that gives for the current user the cohort list he can assign to the enrol method.
+The query admits some dynamic placehodlers to make results depending on current user </p>
 
-   - %ID% : the user id
-     %USERNAME% : the user name
-     %IDNUMER% : the user idnumber
-     %PROFILE_FIELD_<profilefieldshortname>% : injects value of the corresponding user\'s profile field. If the field shortname is not
+<ul>
+     <li>%ID% : the user id</li>
+     <li>%USERNAME% : the user name</li>
+     <li>%IDNUMER% : the user idnumber</li>
+     <li>%PROFILE_FIELD_&lt;profilefieldshortname&gt;% : injects value of the corresponding user\'s profile field. If the field shortname is not
      found in custom profile fields, then it will be search for in the standard user record. Thus %PROFILE_FIELD_lang% will actually
-     inject the current language code for the current user.
+     inject the current language code for the current user.</li>
+</ul>
 
-The cohort request MUST select 2 fields \'id\' and \'name\' in the cohort table for a get_records_menu call.
+<p>The cohort request MUST select 2 fields \'id\' and \'name\' in the cohort table for a get_records_menu call.</p>
 ';
 $string['configrestrictioncohortfield_desc'] = 'A cohort record field on which a match / nomatch pattern can be applied.';
 
 $string['configrestrictionpattern_desc'] = 'the pattern that extracts match (not empty result) / nomatch (empty result)';
+
+$string['filter_help'] = 'Enter a substring that should be contained by option labels to reduce the list';
