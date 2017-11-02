@@ -15,12 +15,14 @@ define(['jquery', 'core/log'], function($, log) {
 
         i = 1;
 
-        options.each(function(){
+        $('#rc-ajax-loader').html('<img src="' + M.cfg.wwwroot + '/pix/i/ajaxloader.gif">');
+
+        options.each(function() {
             $this = $(this);
             $this.removeAttr('selected');
             if ($this.text().indexOf(filter) != -1) {
                 $this.show();
-                if(i == 1){
+                if (i == 1) {
                     $this.attr('selected', 'selected');
                 }
                 i++;
@@ -28,11 +30,13 @@ define(['jquery', 'core/log'], function($, log) {
                 $this.hide();
             }
         });
+
+        $('#rc-ajax-loader').html('');
     };
 
     return {
         init: function() {
-            $('#id_cohortfilter').bind('keyup', filterlist);
+            $('#id_cohortfilter').bind('change', filterlist);
 
             log.debug('AMD Enrol cohortrestricted cohortchoicefilter initialized');
         }
