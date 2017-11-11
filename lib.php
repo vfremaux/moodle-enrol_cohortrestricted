@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Cohort enrolment plugin.
+ * Cohort restricted enrolment plugin.
  *
  * @package    enrol_cohortrestricted
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
@@ -94,9 +94,10 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
     public function can_add_instance($courseid) {
         global $CFG;
 
-        require_once($CFG->dirroot . '/cohort/lib.php');
+        include_once($CFG->dirroot . '/cohort/lib.php');
         $coursecontext = context_course::instance($courseid);
-        if (!has_capability('moodle/course:enrolconfig', $coursecontext) or !has_capability('enrol/cohortrestricted:config', $coursecontext)) {
+        if (!has_capability('moodle/course:enrolconfig', $coursecontext) ||
+                !has_capability('enrol/cohortrestricted:config', $coursecontext)) {
             return false;
         }
         return cohort_get_available_cohorts($coursecontext, 0, 0, 1) ? true : false;
@@ -121,7 +122,7 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
 
         $result = parent::add_instance($course, $fields);
 
-        require_once("$CFG->dirroot/enrol/cohort/locallib.php");
+        include_once($CFG->dirroot.'/enrol/cohort/locallib.php');
         $trace = new null_progress_trace();
         enrol_cohortrestricted_sync($trace, $course->id);
         $trace->finished();
@@ -159,7 +160,6 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
 
         $result = parent::update_instance($instance, $data);
 
-        require_once("$CFG->dirroot/enrol/cohortrestricted/locallib.php");
         $trace = new null_progress_trace();
         enrol_cohortrestricted_sync($trace, $instance->courseid);
         $trace->finished();
@@ -174,7 +174,6 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
     public function cron() {
         global $CFG;
 
-        require_once("$CFG->dirroot/enrol/cohortrestricted/locallib.php");
         $trace = new null_progress_trace();
         enrol_cohortrestricted_sync($trace);
         $trace->finished();
@@ -190,6 +189,7 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
      */
     public function course_updated($inserted, $course, $data) {
         // It turns out there is no need for cohorts to deal with this hook, see MDL-34870.
+        assert(1);
     }
 
     /**
@@ -204,7 +204,6 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
 
         parent::update_status($instance, $newstatus);
 
-        include_once("$CFG->dirroot/enrol/cohortrestricted/locallib.php");
         $trace = new null_progress_trace();
         enrol_cohortrestricted_sync($trace, $instance->courseid);
         $trace->finished();
@@ -217,7 +216,8 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
      * @param stdClass $instance course enrol instance
      * @param stdClass $ue record from user_enrolments table
      *
-     * @return bool - true means user with 'enrol/xxx:unenrol' may unenrol this user, false means nobody may touch this user enrolment
+     * @return bool - true means user with 'enrol/xxx:unenrol' may unenrol this user, false means nobody may
+     * touch this user enrolment
      */
     public function allow_unenrol_user(stdClass $instance, stdClass $ue) {
         if ($ue->status == ENROL_USER_SUSPENDED) {
@@ -269,7 +269,7 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
             $data->customint2 = $step->get_mappingid('group', $data->customint2);
         }
 
-        if ($data->roleid and $DB->record_exists('cohort', array('id'=>$data->customint1))) {
+        if ($data->roleid && $DB->record_exists('cohort', array('id' => $data->customint1))) {
             $params = array('roleid' => $data->roleid,
                             'customint1' => $data->customint1,
                             'courseid' => $course->id,
@@ -282,7 +282,6 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
             }
             $step->set_mapping('enrol', $oldid, $instanceid);
 
-            include_once("$CFG->dirroot/enrol/cohortrestricted/locallib.php");
             $trace = new null_progress_trace();
             enrol_cohortrestricted_sync($trace, $course->id);
             $trace->finished();
@@ -303,7 +302,6 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
             }
             $step->set_mapping('enrol', $oldid, $instanceid);
 
-            include_once("$CFG->dirroot/enrol/cohortrestricted/locallib.php");
             $trace = new null_progress_trace();
             enrol_cohortrestricted_sync($trace, $course->id);
             $trace->finished();
@@ -322,7 +320,8 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
      * @param int $oldinstancestatus
      * @param int $userid
      */
-    public function restore_user_enrolment(restore_enrolments_structure_step $step, $data, $instance, $userid, $oldinstancestatus) {
+    public function restore_user_enrolment(restore_enrolments_structure_step $step, $data, $instance,
+                                           $userid, $oldinstancestatus) {
         global $DB;
 
         if ($this->get_config('unenrolaction') != ENROL_EXT_REMOVED_SUSPENDNOROLES) {
@@ -345,7 +344,7 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
      * @param int $userid
      */
     public function restore_group_member($instance, $groupid, $userid) {
-        // Nothing to do here, the group members are added in $this->restore_group_restored()
+        // Nothing to do here, the group members are added in $this->restore_group_restored().
         return;
     }
 
@@ -387,7 +386,8 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
         $systemcontext = context_system::instance();
         $forcefiltering = optional_param('force', false, PARAM_BOOL);
 
-        if ((!has_capability('moodle/site:config', $systemcontext) || $forcefiltering) && ($config->restrictionmode != NO_RESTRICTION)) {
+        if ((!has_capability('moodle/site:config', $systemcontext) || $forcefiltering) &&
+                    ($config->restrictionmode != NO_RESTRICTION)) {
             if ($config->restrictionmode == RESTRICTION_SQL && !empty($config->restrictionsql)) {
                 $sql = $config->restrictionsql;
                 $sql = $this->process_data($sql);
@@ -442,15 +442,15 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
      * @return array
      */
     public static function static_get_cohort_options($context) {
-        global $DB, $CFG, $USER;
+        global $DB, $CFG;
 
-        include_once($CFG->dirroot . '/cohort/lib.php');
+        include_once($CFG->dirroot.'/cohort/lib.php');
 
         $config = get_config('enrol_cohortrestricted');
 
         if ($config->restrictionmode == RESTRICTION_SQL && !empty($config->restrictionsql)) {
             $sql = $config->restrictionsql;
-            $sql = $this->process_data($sql);
+            $sql = self::process_data($sql);
 
             if ($cohorts = $DB->get_records_sql_menu($sql)) {
                 return $cohorts;
@@ -461,7 +461,7 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
             // Not yet implemented.
             $pattern = $config->restrictionpattern;
             $params = array();
-            $params[] = $this->process_data($pattern);
+            $params[] = self::process_data($pattern);
 
             $select = "
                     ".$config->restrictioncohortfield." LIKE ?
@@ -476,7 +476,7 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
         return array();
     }
 
-    protected function process_data($input) {
+    static protected function process_data($input) {
         global $DB, $USER;
 
         $input = str_replace('%ID%', $USER->id, $input);
@@ -582,8 +582,10 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
         if (count($options) > 20) {
             $group = array();
             $group[] = &$mform->createElement('select', 'customint1', '', $options);
-            $group[] = &$mform->createElement('text', 'cohortfilter', '', array('size' => 10, 'class' => 'restrictedcohort-filter'));
-            $separators = array("&nbsp;&nbsp;&nbsp;".get_string('filter', 'enrol_cohortrestricted').': <span id="rc-ajax-loader"></span>');
+            $attrs = array('size' => 10, 'class' => 'restrictedcohort-filter');
+            $group[] = &$mform->createElement('text', 'cohortfilter', '', $attrs);
+            $sep = "&nbsp;&nbsp;&nbsp;".get_string('filter', 'enrol_cohortrestricted').': <span id="rc-ajax-loader"></span>';
+            $separators = array($sep);
             $mform->addGroup($group, 'customint1group', get_string('cohort', 'cohort'), $separators, false);
             $mform->setType('cohortfilter', PARAM_TEXT);
             $rule = array(get_string('required'), 'required', null, 'client'); // A rule.
@@ -630,7 +632,13 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
             'courseid' => $data['courseid'],
             'id' => $data['id']
         );
-        $sql = "roleid = :roleid AND customint1 = :customint1 AND courseid = :courseid AND enrol = 'cohortrestricted' AND id <> :id";
+        $sql = "
+            roleid = :roleid AND
+            customint1 = :customint1 AND
+            courseid = :courseid AND
+            enrol = 'cohortrestricted' AND
+            id <> :id
+        ";
         if ($DB->record_exists_select('enrol', $sql, $params)) {
             $errors['roleid'] = get_string('instanceexists', 'enrol_cohortrestricted');
         }
@@ -683,7 +691,7 @@ function enrol_cohortrestricted_create_new_group($courseid, $cohortid) {
     $inc = 1;
     // Check to see if the cohort group name already exists. Add an incremented number if it does.
     while ($DB->record_exists('groups', array('name' => $groupname, 'courseid' => $courseid))) {
-        $a->increment = '(' . (++$inc) . ')';
+        $a->increment = '('.(++$inc).')';
         $newshortname = trim(get_string('defaultgroupnametext', 'enrol_cohortrestricted', $a));
         $groupname = $newshortname;
     }
