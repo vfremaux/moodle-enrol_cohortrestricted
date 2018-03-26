@@ -20,7 +20,7 @@
  * The general idea behind this file is that any errors should throw exceptions
  * which will be returned and acted upon by the calling AJAX script.
  */
-define('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/enrol/cohortrestricted/lib.php');
 
