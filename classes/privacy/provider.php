@@ -14,21 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Cohort enrolment plugin version specification.
- *
- * @package    enrol_cohortrestricted
- * @copyright  2017 Valery Fremaux (valery.fremaux@gmail.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace enrol_cohortrestricted\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017080600;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2017050500;        // Requires this Moodle version.
-$plugin->component = 'enrol_cohortrestricted';    // Full name of the plugin (used for diagnostics).
-$plugin->release = '3.4.0 (Build 2017080600)';
-$plugin->maturity = MATURITY_RC;
-
-// Non moodle attributes.
-$plugin->codeincrement = '3.4.0001';
+class provider implements \core_privacy\local\metadata\null_provider {
+}
