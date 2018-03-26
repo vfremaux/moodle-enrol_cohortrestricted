@@ -31,11 +31,16 @@
 define('CLI_SCRIPT', true);
 
 require(__DIR__.'/../../../config.php');
-require_once("$CFG->libdir/clilib.php");
-require_once("$CFG->dirroot/enrol/cohortrestricted/locallib.php");
+require_once($CFG->libdir.'/clilib.php');
+require_once($CFG->dirroot.'/enrol/cohortrestricted/locallib.php');
 
 // Now get cli options.
-list($options, $unrecognized) = cli_get_params(array('verbose'=>false, 'help'=>false), array('v'=>'verbose', 'h'=>'help'));
+list($options, $unrecognized) = cli_get_params(
+    array('verbose' => false,
+          'help' => false),
+    array('v' => 'verbose',
+          'h' => 'help')
+);
 
 if ($unrecognized) {
     $unrecognized = implode("\n  ", $unrecognized);
@@ -43,8 +48,7 @@ if ($unrecognized) {
 }
 
 if ($options['help']) {
-    $help =
-        "Execute cohort course enrol sync on cohort restricted plugin.
+    $help = "Execute cohort course enrol sync on cohort restricted plugin.
 
 Options:
 -v, --verbose         Print verbose progess information

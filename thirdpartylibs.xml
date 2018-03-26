@@ -5,13 +5,20 @@
     <name>Moodle Custom Scripting</name>
     <license>GPL</license>
     <version></version>
-    <licenseversion>3.0</licenseversion>
+    <licenseversion>3.1</licenseversion>
   </library>
   <library>
     <location>__reference</location>
     <name>Moodle Core reference files</name>
     <license>GPL</license>
     <version></version>
-    <licenseversion>3.0</licenseversion>
+    <licenseversion>3.1</licenseversion>
+  </library>
+  <library>
+    <location>tests</location>
+    <name>Moodle Core test clone</name>
+    <license>GPL</license>
+    <version></version>
+    <licenseversion>3.1</licenseversion>
   </library>
 </libraries>

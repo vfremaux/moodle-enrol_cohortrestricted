@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Meta link enrolment plugin uninstallation.
+ * Cohort Restricted plugin enrolment plugin uninstallation.
  *
  * @package    enrol_cohortrestricted
- * @copyright  2011 Petr Skoda {@link http://skodak.org}
+ * @copyright  2017 Valery Fremaux {@link http://www.mylearningfactory.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,7 +28,7 @@ function xmldb_enrol_cohortrestricted_uninstall() {
     global $CFG, $DB;
 
     $cohort = enrol_get_plugin('cohortrestricted');
-    $rs = $DB->get_recordset('enrol', array('enrol'=>'cohortrestricted'));
+    $rs = $DB->get_recordset('enrol', array('enrol' => 'cohortrestricted'));
     foreach ($rs as $instance) {
         $cohort->delete_instance($instance);
     }

@@ -130,7 +130,8 @@ class enrol_cohortrestricted_handler {
         global $DB;
 
         // Does anything want to sync with this cohort?
-        if (!$instances = $DB->get_records('enrol', array('customint1'=>$event->objectid, 'enrol'=>'cohortrestricted'), 'id ASC')) {
+        $params = array('customint1' => $event->objectid, 'enrol' => 'cohortrestricted');
+        if (!$instances = $DB->get_records('enrol', $params, 'id ASC')) {
             return true;
         }
 
@@ -140,7 +141,8 @@ class enrol_cohortrestricted_handler {
         foreach ($instances as $instance) {
             if ($unenrolaction == ENROL_EXT_REMOVED_SUSPENDNOROLES) {
                 $context = context_course::instance($instance->courseid);
-                role_unassign_all(array('contextid'=>$context->id, 'component'=>'enrol_cohortrestricted', 'itemid'=>$instance->id));
+                $params = array('contextid' => $context->id, 'component' => 'enrol_cohortrestricted', 'itemid' => $instance->id);
+                role_unassign_all($params);
                 $plugin->update_status($instance, ENROL_INSTANCE_DISABLED);
             } else {
                 $plugin->delete_instance($instance);
@@ -166,7 +168,7 @@ function enrol_cohortrestricted_sync(progress_trace $trace, $courseid = null) {
     // Purge all roles if cohort sync disabled, those can be recreated later here by cron or CLI.
     if (!enrol_is_enabled('cohortrestricted')) {
         $trace->output('Cohort sync plugin is disabled, unassigning all plugin roles and stopping.');
-        role_unassign_all(array('component'=>'enrol_cohortrestricted'));
+        role_unassign_all(array('component' => 'enrol_cohortrestricted'));
         return 2;
     }
 
@@ -177,19 +179,37 @@ function enrol_cohortrestricted_sync(progress_trace $trace, $courseid = null) {
     $trace->output('Starting user enrolment synchronisation...');
 
     $allroles = get_all_roles();
-    $instances = array(); //cache
+    $instances = array(); // Cache.
 
     $plugin = enrol_get_plugin('cohortrestricted');
     $unenrolaction = $plugin->get_config('unenrolaction', ENROL_EXT_REMOVED_UNENROL);
 
     // Iterate through all not enrolled yet users.
     $onecourse = $courseid ? "AND e.courseid = :courseid" : "";
-    $sql = "SELECT cm.userid, e.id AS enrolid, ue.status
-              FROM {cohort_members} cm
-              JOIN {enrol} e ON (e.customint1 = cm.cohortid AND e.enrol = 'cohortrestricted' AND e.status = :enrolstatus $onecourse)
-              JOIN {user} u ON (u.id = cm.userid AND u.deleted = 0)
-         LEFT JOIN {user_enrolments} ue ON (ue.enrolid = e.id AND ue.userid = cm.userid)
-             WHERE ue.id IS NULL OR ue.status = :suspended";
+    $sql = "
+        SELECT
+            cm.userid,
+            e.id AS enrolid,
+            ue.status
+        FROM
+            {cohort_members} cm
+        JOIN
+            {enrol} e ON
+            (e.customint1 = cm.cohortid AND
+            e.enrol = 'cohortrestricted' AND
+            e.status = :enrolstatus $onecourse)
+        JOIN
+            {user} u ON
+            (u.id = cm.userid AND
+            u.deleted = 0)
+        LEFT JOIN
+            {user_enrolments} ue ON
+            (ue.enrolid = e.id AND
+            ue.userid = cm.userid)
+        WHERE
+            ue.id IS NULL OR
+            ue.status = :suspended
+    ";
     $params = array();
     $params['courseid'] = $courseid;
     $params['suspended'] = ENROL_USER_SUSPENDED;
@@ -197,7 +217,7 @@ function enrol_cohortrestricted_sync(progress_trace $trace, $courseid = null) {
     $rs = $DB->get_recordset_sql($sql, $params);
     foreach ($rs as $ue) {
         if (!isset($instances[$ue->enrolid])) {
-            $instances[$ue->enrolid] = $DB->get_record('enrol', array('id'=>$ue->enrolid));
+            $instances[$ue->enrolid] = $DB->get_record('enrol', array('id' => $ue->enrolid));
         }
         $instance = $instances[$ue->enrolid];
         if ($ue->status == ENROL_USER_SUSPENDED) {
@@ -211,15 +231,26 @@ function enrol_cohortrestricted_sync(progress_trace $trace, $courseid = null) {
     $rs->close();
 
     // Unenrol as necessary.
-    $sql = "SELECT ue.*, e.courseid
-              FROM {user_enrolments} ue
-              JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'cohortrestricted' $onecourse)
-         LEFT JOIN {cohort_members} cm ON (cm.cohortid = e.customint1 AND cm.userid = ue.userid)
-             WHERE cm.id IS NULL";
+    $sql = "
+        SELECT
+            ue.*, e.courseid
+        FROM
+            {user_enrolments} ue
+        JOIN
+            {enrol} e ON
+            (e.id = ue.enrolid AND
+            e.enrol = 'cohortrestricted' $onecourse)
+        LEFT JOIN
+            {cohort_members} cm ON
+            (cm.cohortid = e.customint1 AND
+            cm.userid = ue.userid)
+        WHERE
+            cm.id IS NULL
+    ";
     $rs = $DB->get_recordset_sql($sql, array('courseid'=>$courseid));
     foreach ($rs as $ue) {
         if (!isset($instances[$ue->enrolid])) {
-            $instances[$ue->enrolid] = $DB->get_record('enrol', array('id'=>$ue->enrolid));
+            $instances[$ue->enrolid] = $DB->get_record('enrol', array('id' => $ue->enrolid));
         }
         $instance = $instances[$ue->enrolid];
         if ($unenrolaction == ENROL_EXT_REMOVED_UNENROL) {
@@ -232,7 +263,10 @@ function enrol_cohortrestricted_sync(progress_trace $trace, $courseid = null) {
             if ($ue->status != ENROL_USER_SUSPENDED) {
                 $plugin->update_user_enrol($instance, $ue->userid, ENROL_USER_SUSPENDED);
                 $context = context_course::instance($instance->courseid);
-                role_unassign_all(array('userid'=>$ue->userid, 'contextid'=>$context->id, 'component'=>'enrol_cohortrestricted', 'itemid'=>$instance->id));
+                role_unassign_all(array('userid' => $ue->userid,
+                                        'contextid' => $context->id,
+                                        'component'=>'enrol_cohortrestricted',
+                                        'itemid' => $instance->id));
                 $trace->output("suspending and unsassigning all roles: $ue->userid ==> $instance->courseid", 1);
             }
         }
@@ -242,14 +276,47 @@ function enrol_cohortrestricted_sync(progress_trace $trace, $courseid = null) {
 
     // Now assign all necessary roles to enrolled users - skip suspended instances and users.
     $onecourse = $courseid ? "AND e.courseid = :courseid" : "";
-    $sql = "SELECT e.roleid, ue.userid, c.id AS contextid, e.id AS itemid, e.courseid
-              FROM {user_enrolments} ue
-              JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'cohortrestricted' AND e.status = :statusenabled $onecourse)
-              JOIN {role} r ON (r.id = e.roleid)
-              JOIN {context} c ON (c.instanceid = e.courseid AND c.contextlevel = :coursecontext)
-              JOIN {user} u ON (u.id = ue.userid AND u.deleted = 0)
-         LEFT JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.userid = ue.userid AND ra.itemid = e.id AND ra.component = 'enrol_cohortrestricted' AND e.roleid = ra.roleid)
-             WHERE ue.status = :useractive AND ra.id IS NULL";
+    $sql = "
+        SELECT
+            e.roleid,
+            ue.userid,
+            c.id AS contextid,
+            e.id AS itemid,
+            e.courseid
+        FROM
+            {user_enrolments} ue
+        JOIN
+            {enrol} e
+        ON 
+            (e.id = ue.enrolid AND
+            e.enrol = 'cohortrestricted' AND
+            e.status = :statusenabled $onecourse)
+        JOIN
+            {role}
+        ON
+            (r.id = e.roleid)
+        JOIN
+            {context} c
+        ON
+            (c.instanceid = e.courseid AND
+            c.contextlevel = :coursecontext)
+        JOIN
+            {user} u
+        ON
+            (u.id = ue.userid AND
+            u.deleted = 0)
+        LEFT JOIN
+            {role_assignments} ra
+        ON
+            (ra.contextid = c.id AND
+            ra.userid = ue.userid AND
+            ra.itemid = e.id AND
+            ra.component = 'enrol_cohortrestricted' AND
+            e.roleid = ra.roleid)
+        WHERE
+            ue.status = :useractive AND
+            ra.id IS NULL
+    ";
     $params = array();
     $params['statusenabled'] = ENROL_INSTANCE_ENABLED;
     $params['useractive'] = ENROL_USER_ACTIVE;
@@ -265,12 +332,34 @@ function enrol_cohortrestricted_sync(progress_trace $trace, $courseid = null) {
 
     // Remove unwanted roles - sync role can not be changed, we only remove role when unenrolled.
     $onecourse = $courseid ? "AND e.courseid = :courseid" : "";
-    $sql = "SELECT ra.roleid, ra.userid, ra.contextid, ra.itemid, e.courseid
-              FROM {role_assignments} ra
-              JOIN {context} c ON (c.id = ra.contextid AND c.contextlevel = :coursecontext)
-              JOIN {enrol} e ON (e.id = ra.itemid AND e.enrol = 'cohortrestricted' $onecourse)
-         LEFT JOIN {user_enrolments} ue ON (ue.enrolid = e.id AND ue.userid = ra.userid AND ue.status = :useractive)
-             WHERE ra.component = 'enrol_cohortrestricted' AND (ue.id IS NULL OR e.status <> :statusenabled)";
+    $sql = "
+        SELECT
+            ra.roleid,
+            ra.userid,
+            ra.contextid,
+            ra.itemid,
+            e.courseid
+        FROM
+            {role_assignments} ra
+        JOIN
+            {context} c ON
+            (c.id = ra.contextid AND
+            c.contextlevel = :coursecontext)
+        JOIN
+            {enrol} e
+        ON
+            (e.id = ra.itemid AND
+            e.enrol = 'cohortrestricted' $onecourse)
+        LEFT JOIN
+            {user_enrolments} ue ON
+            (ue.enrolid = e.id AND
+            ue.userid = ra.userid AND
+            ue.status = :useractive)
+        WHERE
+            ra.component = 'enrol_cohortrestricted' AND
+            (ue.id IS NULL OR
+            e.status <> :statusenabled)
+    ";
     $params = array();
     $params['statusenabled'] = ENROL_INSTANCE_ENABLED;
     $params['useractive'] = ENROL_USER_ACTIVE;
