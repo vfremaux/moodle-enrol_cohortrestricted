@@ -242,7 +242,8 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
         $params['ue'] = $ue->id;
         if ($this->allow_unenrol_user($instance, $ue) && has_capability('enrol/cohortrestricted:unenrol', $context)) {
             $url = new moodle_url('/enrol/unenroluser.php', $params);
-            $actions[] = new user_enrolment_action(new pix_icon('t/delete', ''), get_string('unenrol', 'enrol'), $url, array('class' => 'unenrollink', 'rel' => $ue->id));
+            $attrs = array('class' => 'unenrollink', 'rel' => $ue->id);
+            $actions[] = new user_enrolment_action(new pix_icon('t/delete', ''), get_string('unenrol', 'enrol'), $url, $attrs);
         }
         return $actions;
     }
@@ -269,7 +270,11 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
         }
 
         if ($data->roleid and $DB->record_exists('cohort', array('id'=>$data->customint1))) {
-            $instance = $DB->get_record('enrol', array('roleid' => $data->roleid, 'customint1' => $data->customint1, 'courseid' => $course->id, 'enrol' => $this->get_name()));
+            $params = array('roleid' => $data->roleid,
+                            'customint1' => $data->customint1,
+                            'courseid' => $course->id,
+                            'enrol' => $this->get_name());
+            $instance = $DB->get_record('enrol', $params);
             if ($instance) {
                 $instanceid = $instance->id;
             } else {
@@ -284,7 +289,11 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
 
         } else if ($this->get_config('unenrolaction') == ENROL_EXT_REMOVED_SUSPENDNOROLES) {
             $data->customint1 = 0;
-            $instance = $DB->get_record('enrol', array('roleid' => $data->roleid, 'customint1' => $data->customint1, 'courseid' => $course->id, 'enrol' => $this->get_name()));
+            $params = array('roleid' => $data->roleid,
+                            'customint1' => $data->customint1,
+                            'courseid' => $course->id,
+                            'enrol' => $this->get_name());
+            $instance = $DB->get_record('enrol', $params);
 
             if ($instance) {
                 $instanceid = $instance->id;
@@ -570,11 +579,12 @@ class enrol_cohortrestricted_plugin extends enrol_plugin {
 
         $options = $this->get_cohort_options($instance, $coursecontext);
 
-        if (count($options) < 20) {
+        if (count($options) > 20) {
             $group = array();
             $group[] = &$mform->createElement('select', 'customint1', '', $options);
             $group[] = &$mform->createElement('text', 'cohortfilter', '', array('size' => 10, 'class' => 'restrictedcohort-filter'));
-            $mform->addGroup($group, 'customint1group', get_string('cohort', 'cohort'), array("&nbsp;&nbsp;&nbsp;".get_string('filter', 'enrol_cohortrestricted').':'), false);
+            $separators = array("&nbsp;&nbsp;&nbsp;".get_string('filter', 'enrol_cohortrestricted').': <span id="rc-ajax-loader"></span>');
+            $mform->addGroup($group, 'customint1group', get_string('cohort', 'cohort'), $separators, false);
             $mform->setType('cohortfilter', PARAM_TEXT);
             $rule = array(get_string('required'), 'required', null, 'client'); // A rule.
             $rules = array($rule); // Rules for elementindex0 (the select).
