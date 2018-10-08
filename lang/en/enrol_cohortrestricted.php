@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['privacy:metadata'] = "The Cohort Restricted Enrol do not store any data belonging to users";
+
 $string['cohortrestricted:config'] = 'Can configure the restricted cohort enrol';
 $string['cohortrestricted:unenrol'] = 'Can unenrol';
 $string['cohortrestricted:isrestricted'] = 'Has cohort list restrictions';
